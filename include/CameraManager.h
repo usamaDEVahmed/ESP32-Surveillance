@@ -28,13 +28,30 @@ public:
 
     void releaseFrame(Frame& frame);
 
+    StatusCode setBrightness(int8_t value);
+
+    StatusCode setContrast(int8_t value);
+
+    StatusCode setSaturation(int8_t value);
+
+    StatusCode setJPEGQuality(uint8_t quality);
+
+    StatusCode setHorizontalMirror(bool enabled);
+
+    StatusCode setVerticalFlip(bool enabled);
+
+    StatusCode setResolution(CameraResolution resolution);
+    
+
 private:
 
     StatusCode initializeCamera();
 
     camera_config_t createCameraConfiguration();
+    
+    StatusCode validateSensor() const;
 
-private:
+    framesize_t toFrameSize(CameraResolution resolution);
 
     sensor_t* m_sensor;
 

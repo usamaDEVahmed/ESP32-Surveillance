@@ -184,3 +184,170 @@ void CameraManager::releaseFrame(Frame& frame)
 
     frame.buffer = nullptr;
 }
+
+StatusCode CameraManager::validateSensor() const
+{
+    if (!m_initialized)
+    {
+        return StatusCode::NOT_INITIALIZED;
+    }
+
+    if (m_sensor == nullptr)
+    {
+        return StatusCode::SENSOR_NOT_FOUND;
+    }
+
+    return StatusCode::OK;
+}
+
+StatusCode CameraManager::setBrightness(int8_t value)
+{
+    StatusCode status = validateSensor();
+
+    if (status != StatusCode::OK)
+        return status;
+
+    if (value < -2 || value > 2)
+        return StatusCode::INVALID_PARAMETER;
+
+    m_sensor->set_brightness(m_sensor, value);
+
+    logger.info("Camera", "Brightness set to %d", value);
+
+    return StatusCode::OK;
+}
+
+StatusCode CameraManager::setContrast(int8_t value)
+{
+    StatusCode status = validateSensor();
+
+    if (status != StatusCode::OK)
+        return status;
+
+    if (value < -2 || value > 2)
+        return StatusCode::INVALID_PARAMETER;
+
+    m_sensor->set_contrast(m_sensor, value);
+
+    logger.info("Camera", "Contrast set to %d", value);
+
+    return StatusCode::OK;
+}
+
+StatusCode CameraManager::setSaturation(int8_t value)
+{
+    StatusCode status = validateSensor();
+
+    if (status != StatusCode::OK)
+        return status;
+
+    if (value < -2 || value > 2)
+        return StatusCode::INVALID_PARAMETER;
+
+    m_sensor->set_saturation(m_sensor, value);
+
+    logger.info("Camera", "Saturation set to %d", value);
+
+    return StatusCode::OK;
+}
+
+StatusCode CameraManager::setJPEGQuality(uint8_t quality)
+{
+    StatusCode status = validateSensor();
+
+    if (status != StatusCode::OK)
+        return status;
+
+    if (quality < 10 || quality > 63)
+        return StatusCode::INVALID_PARAMETER;
+
+    m_sensor->set_quality(m_sensor, quality);
+
+    logger.info("Camera", "JPEG quality set to %u", quality);
+
+    return StatusCode::OK;
+}
+
+StatusCode CameraManager::setHorizontalMirror(bool enabled)
+{
+    StatusCode status = validateSensor();
+
+    if (status != StatusCode::OK)
+        return status;
+
+    m_sensor->set_hmirror(m_sensor, enabled);
+
+    logger.info("Camera",
+                "Horizontal mirror %s",
+                enabled ? "enabled" : "disabled");
+
+    return StatusCode::OK;
+}
+
+StatusCode CameraManager::setVerticalFlip(bool enabled)
+{
+    StatusCode status = validateSensor();
+
+    if (status != StatusCode::OK)
+        return status;
+
+    m_sensor->set_vflip(m_sensor, enabled);
+
+    logger.info("Camera",
+                "Vertical flip %s",
+                enabled ? "enabled" : "disabled");
+
+    return StatusCode::OK;
+}
+
+framesize_t CameraManager::toFrameSize(CameraResolution resolution)
+{
+    switch (resolution)
+    {
+        case CameraResolution::QQVGA:
+            return FRAMESIZE_QQVGA;
+
+        case CameraResolution::HQVGA:
+            return FRAMESIZE_HQVGA;
+
+        case CameraResolution::QVGA:
+            return FRAMESIZE_QVGA;
+
+        case CameraResolution::CIF:
+            return FRAMESIZE_CIF;
+
+        case CameraResolution::VGA:
+            return FRAMESIZE_VGA;
+
+        case CameraResolution::SVGA:
+            return FRAMESIZE_SVGA;
+
+        case CameraResolution::XGA:
+            return FRAMESIZE_XGA;
+
+        case CameraResolution::SXGA:
+            return FRAMESIZE_SXGA;
+
+        case CameraResolution::UXGA:
+            return FRAMESIZE_UXGA;
+
+        default:
+            return FRAMESIZE_SVGA;
+    }
+}
+
+StatusCode CameraManager::setResolution(CameraResolution resolution)
+{
+    StatusCode status = validateSensor();
+
+    if (status != StatusCode::OK)
+        return status;
+
+    m_sensor->set_framesize(
+        m_sensor,
+        toFrameSize(resolution));
+
+    logger.info("Camera", "Resolution changed.");
+
+    return StatusCode::OK;
+}

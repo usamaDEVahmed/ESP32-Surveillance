@@ -6,6 +6,7 @@
 
 #include "ConfigManager.h"
 #include "Logger.h"
+#include "Frame.h"
 
 #include "core/CameraPins.h"
 #include "core/StatusCodes.h"
@@ -23,9 +24,9 @@ public:
 
     sensor_t* sensor();
 
-    camera_fb_t* captureFrame();
+    Frame captureFrame();
 
-    void releaseFrame(camera_fb_t* frame);
+    void releaseFrame(Frame& frame);
 
 private:
 

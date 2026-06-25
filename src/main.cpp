@@ -39,35 +39,23 @@ void loop()
 {
     wifi.update();
 
-    camera_fb_t* frame = camera.captureFrame();
+    Frame frame = camera.captureFrame();
 
-    if (frame != nullptr)
+    if (frame.isValid())
     {
         Serial.println("----------------------------");
 
-        Serial.printf(
-            "Width      : %u\n",
-            frame->width);
+        Serial.printf("Width      : %u\n", frame.width);
 
-        Serial.printf(
-            "Height     : %u\n",
-            frame->height);
+        Serial.printf("Height     : %u\n", frame.height);
 
-        Serial.printf(
-            "Length     : %u bytes\n",
-            frame->len);
+        Serial.printf("Length     : %u bytes\n", frame.length);
 
-        Serial.printf(
-            "Format     : %d\n",
-            frame->format);
+        Serial.printf("Format     : %d\n", frame.format);
 
         Serial.println("----------------------------");
 
         camera.releaseFrame(frame);
-    }
-    else
-    {
-        Serial.printf("ERROR while capturing the frame");
     }
 
     delay(1000);

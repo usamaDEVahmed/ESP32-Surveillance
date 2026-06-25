@@ -130,20 +130,22 @@ sensor_t* CameraManager::sensor()
     return m_sensor;
 }
 
-camera_fb_t* CameraManager::captureFrame()
+Frame CameraManager::captureFrame()
 {
+    Frame frame;
+
     if (!m_initialized)
     {
         logger.error(
             "Camera",
             "captureFrame() called before initialization.");
 
-        return nullptr;
+        return frame;
     }
 
-    camera_fb_t* frame = esp_camera_fb_get();
+    camera_fb_t* fb = esp_camera_fb_get();
 
-    if (frame == nullptr)
+    if (fb == nullptr)
     {
         m_captureFailures++;
 
@@ -151,26 +153,34 @@ camera_fb_t* CameraManager::captureFrame()
             "Camera",
             "Failed to capture frame.");
 
-        return nullptr;
+        return frame;
     }
 
     m_frameCounter++;
+
+    frame.buffer = fb;
+    frame.width = fb->width;
+    frame.height = fb->height;
+    frame.length = fb->len;
+    frame.format = fb->format;
 
     logger.debug(
         "Camera",
         "Captured frame #%lu (%u bytes)",
         m_frameCounter,
-        frame->len);
+        fb->len);
 
     return frame;
 }
 
-void CameraManager::releaseFrame(camera_fb_t* frame)
+void CameraManager::releaseFrame(Frame& frame)
 {
-    if (frame == nullptr)
+    if (!frame.isValid())
     {
         return;
     }
 
-    esp_camera_fb_return(frame);
+    esp_camera_fb_return(frame.buffer);
+
+    frame.buffer = nullptr;
 }
